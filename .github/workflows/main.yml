@@ -12,7 +12,7 @@ jobs:
             shell: powershell
             run: |
               Write-Host (Get-Location)
-              $ENV_PATH = ".env"
+              $ENV_PATH = "sep.env"
 
               if (Test-Path -Path $ENV_PATH) {
                 # .envファイルを1行ずつ読み込み、環境変数として設定

@@ -28,11 +28,3 @@ jobs:
             run: gh release create main "$env:DRIVE_PATH\Unity.zip" --title "Release main" --notes "This is a release created from a self-hosted runner." --target main
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            # uses: ncipollo/release-action@v1
-            # with:
-            #   artifacts: file.zip
-            #   token: ${{ secrets.GITHUB_TOKEN }}
-            #   tag: ${{ github.ref_name }}
-            #   name: Release ${{ github.ref_name }}
-            #   body: |
-            #     このリリースはセルフホストランナーからアップロードされました。

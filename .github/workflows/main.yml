@@ -10,7 +10,7 @@ jobs:
         steps:
           - name: Load sep.env
             run: |
-              pwd
+              echo %cd%
               $ENV_PATH = ".env"
 
               if (Test-Path -Path $ENV_PATH) {

@@ -1,1 +1,38 @@
+name: Upload to GitHub Releases
 
+on:
+    workflow_dispatch: {}
+permissions:
+    contents: write
+jobs:
+    upload-release:
+        runs-on: [self-hosted, Windows]
+        steps:
+          - name: Load sep.env
+            run: |
+              Get-Content sep.env | ForEach-Object {
+                if ($_ -match "^\s*([^#][^=]+)=(.*)$") {
+                  [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2])
+                }
+              }
+          # Google Driveからファイルを取得
+          - name: Create Zip
+            run: |
+              # 実際のGoogle Drive上のファイルパスに置き換えてください
+              powershell -Command "Compress-Archive -Path ${{ secrets.DRIVE_PATH }} -DestinationPath ${{ secrets.DRIVE_PATH }}\Unity.zip"
+
+          # GitHub Releasesへアップロード
+          - name: Upload Releases
+            if: failure() == false
+            run: /
+              gh release create ${{ github.ref_name }} ${{ secrets.DRIVE_PATH }}\Unity.zip --title "Release ${{ github.ref_name }}" --notes "このリリースはセルフホストランナーからアップロードされました。"
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            # uses: ncipollo/release-action@v1
+            # with:
+            #   artifacts: file.zip
+            #   token: ${{ secrets.GITHUB_TOKEN }}
+            #   tag: ${{ github.ref_name }}
+            #   name: Release ${{ github.ref_name }}
+            #   body: |
+            #     このリリースはセルフホストランナーからアップロードされました。

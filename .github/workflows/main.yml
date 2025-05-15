@@ -35,9 +35,9 @@ jobs:
               }
           # Google Driveからファイルを取得
           - name: Create Zip
+            shell: powershell
             run: |
-              # 実際のGoogle Drive上のファイルパスに置き換えてください
-              powershell -Command "Compress-Archive -Path ${{ secrets.DRIVE_PATH }} -DestinationPath ${{ secrets.DRIVE_PATH }}\Unity.zip"
+              Compress-Archive -Path "$env:DRIVE_PATH" -DestinationPath "..$($env:DRIVE_PATH)\Unity.zip"
 
           # GitHub Releasesへアップロード
           - name: Upload Releases

@@ -23,10 +23,9 @@ jobs:
           # GitHub Releasesへアップロード
           - name: Upload Releases
             if: failure() == false
-            run: /
-              gh release create ${{ github.ref_name }} $env:DRIVE_PATH\Unity.zip --title "Release ${{ github.ref_name }}" --notes "このリリースはセルフホストランナーからアップロードされました。"
+            run: gh release create main "$env:DRIVE_PATH\Unity.zip" --title "Release main" --notes "このリリースはセルフホストランナーからアップロードされました。"
             env:
-              GITHUB_TOKEN: ${{ secrets.SEP_TOKEN }}
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             # uses: ncipollo/release-action@v1
             # with:
             #   artifacts: file.zip

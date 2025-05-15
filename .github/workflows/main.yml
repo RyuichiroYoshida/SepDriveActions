@@ -12,12 +12,12 @@ jobs:
             shell: powershell
             run: |
               Write-Host (Get-Location)
-              $ENV_PATH = "sep.env"
+              $EnvFile = "sep.env"
 
-              if (Test-Path -Path $ENV_PATH) {
+              if (Test-Path -Path $EnvFile) {
                 # .envファイルを1行ずつ読み込み、環境変数として設定
                 Write-Host "Loading environment variables from $EnvFile"
-                Get-Content -Path $ENV_PATH | ForEach-Object {
+                Get-Content -Path $EnvFile | ForEach-Object { # -Path は Get-Content に指定
                   if ($_ -notlike "#*" -and $_ -notlike "") {
                     # KEY=value の形式を想定
                     if ($_ -match "^[A-Za-z_]+[A-Za-z0-9_]*=") {
@@ -33,7 +33,7 @@ jobs:
                   }
                 }
               } else {
-                Write-Host "$ENV_PATH not found."
+                Write-Host "$EnvFile not found." # 変数名を $EnvFile に統一
               }
           # Google Driveからファイルを取得
           - name: Create Zip

@@ -8,7 +8,7 @@ jobs:
     upload-release:
         runs-on: [self-hosted, Windows]
         steps:
-          - name: Load sep.env
+          - name: Load .env
             shell: powershell
             run: |
               Write-Host (Get-Location)
@@ -16,6 +16,7 @@ jobs:
 
               if (Test-Path -Path $ENV_PATH) {
                 # .envファイルを1行ずつ読み込み、環境変数として設定
+                Write-Host "Loading environment variables from $EnvFile"
                 Get-Content -Path $ENV_PATH | ForEach-Object {
                   if ($_ -notlike "#*" -and $_ -notlike "") {
                     # KEY=value の形式を想定

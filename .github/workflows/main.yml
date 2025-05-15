@@ -10,7 +10,7 @@ jobs:
         steps:
           - name: Load sep.env
             run: |
-              $ENV_PATH = ".env"
+              $ENV_PATH = "./sep.env"
 
               if (Test-Path -Path $ENV_PATH) {
                 # .envファイルを1行ずつ読み込み、環境変数として設定

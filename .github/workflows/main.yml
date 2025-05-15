@@ -10,12 +10,11 @@ jobs:
         steps:
           - name: Load sep.env
             run: |
-              $ENV_PATH = "./sep.env"
+              $ENV_PATH = ".env"
 
-              if (Test-Path -Path $EnvFile) {
-                Write-Host "Loading environment variables from $EnvFile"
+              if (Test-Path -Path $ENV_PATH) {
                 # .envファイルを1行ずつ読み込み、環境変数として設定
-                Get-Content -Path $EnvFile | ForEach-Object {
+                Get-Content -Path $ENV_PATH | ForEach-Object {
                   if ($_ -notlike "#*" -and $_ -notlike "") {
                     # KEY=value の形式を想定
                     if ($_ -match "^[A-Za-z_]+[A-Za-z0-9_]*=") {
@@ -31,7 +30,7 @@ jobs:
                   }
                 }
               } else {
-                Write-Host "$EnvFile not found."
+                Write-Host "$ENV_PATH not found."
               }
           # Google Driveからファイルを取得
           - name: Create Zip

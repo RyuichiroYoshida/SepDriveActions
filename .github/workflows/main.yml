@@ -10,6 +10,8 @@ jobs:
         env:
           DRIVE_PATH: H:\マイドライブ\September
         steps:
+          - name: Checkout code
+            uses: actions/checkout@v4
           - name: Create Zip
             shell: powershell
             run: |

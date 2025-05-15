@@ -9,7 +9,7 @@ jobs:
         runs-on: [self-hosted, Windows]
         steps:
           - name: Load .env
-            shell: pwsh
+            shell: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\PowerShell
             run: |
               Write-Host (Get-Location)
               $EnvFile = "sep.env"

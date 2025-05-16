@@ -8,7 +8,7 @@ jobs:
     upload-release:
         runs-on: [self-hosted, Windows]
         env:
-          DRIVE_PATH: H:\マイドライブ\September
+          DRIVE_PATH: I:\マイドライブ\September
         steps:
           - name: Checkout code
             uses: actions/checkout@v4

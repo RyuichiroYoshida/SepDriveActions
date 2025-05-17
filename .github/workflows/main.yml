@@ -9,7 +9,6 @@ jobs:
         runs-on: [self-hosted, Windows]
         env:
           DRIVE_PATH: I:\マイドライブ\September
-          TIMESTAMP: ${{ github.event.inputs.timestamp }}
         steps:
           - name: Checkout code
             uses: actions/checkout@v4
@@ -26,8 +25,10 @@ jobs:
           # GitHub Releasesへアップロード
           - name: Upload Releases
             if: failure() == false
+            shell: powershell
             run: |
-              Write-Host "TIMESTAMP from env: $env:TIMESTAMP" # デバッグ用
-              gh release create $env:TIMESTAMP "$env:DRIVE_PATH\Unity.zip" --title "Release main" --notes "This is a release created from a self-hosted runner." --target main
+              $TIMESTAMP = Get-Date -Format "yyyyMMdd_HHmmss"
+              Write-Host "TIMESTAMP from env: $TIMESTAMP" # デバッグ用
+              gh release create $TIMESTAMP "$env:DRIVE_PATH\Unity.zip" --title "Release main" --notes "This is a release created from a self-hosted runner." --target main
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

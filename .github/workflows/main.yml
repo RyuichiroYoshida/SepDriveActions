@@ -25,6 +25,8 @@ jobs:
           # GitHub Releasesへアップロード
           - name: Upload Releases
             if: failure() == false
-            run: gh release create main "$env:DRIVE_PATH\Unity.zip" --title "Release main" --notes "This is a release created from a self-hosted runner." --target main
+            run: |
+              $TIMESTAMP = Get-Date -Format "yyyyMMdd_HHmmss"
+              gh release create $env:TIMESTAMP "$env:DRIVE_PATH\Unity.zip" --title "Release main" --notes "This is a release created from a self-hosted runner." --target main
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

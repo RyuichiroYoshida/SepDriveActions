@@ -29,6 +29,6 @@ jobs:
             run: |
               $TIMESTAMP = Get-Date -Format "yyyyMMdd_HHmmss"
               Write-Host "TIMESTAMP from env: $TIMESTAMP" # デバッグ用
-              gh release create $TIMESTAMP "$env:DRIVE_PATH\Unity.zip" --title "Release main" --notes "This is a release created from a self-hosted runner." --target main
+              gh release create $TIMESTAMP "$env:DRIVE_PATH\Unity.zip" --title "Release Unity Package" --notes "This is a release created from a self-hosted runner." --target main
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

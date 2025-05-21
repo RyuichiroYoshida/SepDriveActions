@@ -71,7 +71,7 @@ const GetS3AssetUrl = (() => {
 			method: "get",
 			headers: {
 				Accept: "application/octet-stream",
-				Authorization: "token " + PropertiesService.getScriptProperties().getProperty("GITHUB_TOKEN"),
+				Authorization: "token " + process.env.GITHUB_TOKEN,
 			},
 			followRedirects: false,
 			muteHttpExceptions: true,
@@ -105,7 +105,7 @@ const GetReleases = (() => {
 			method: "get",
 			headers: {
 				Accept: "application/vnd.github.v3+json",
-				Authorization: "token " + PropertiesService.getScriptProperties().getProperty("GITHUB_TOKEN"),
+				Authorization: "token " + process.env.GITHUB_TOKEN,
 			},
 			followRedirects: false,
 			muteHttpExceptions: true,

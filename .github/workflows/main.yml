@@ -1,7 +1,9 @@
 name: Upload to GitHub Releases
 
 on:
-    workflow_dispatch: {}
+  schedule:
+    - cron: '0 0 * * *' # 毎日午前0時に実行
+  workflow_dispatch: {}
 permissions:
     contents: write
 jobs:

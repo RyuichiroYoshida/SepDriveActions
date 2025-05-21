@@ -49,7 +49,7 @@ exports.importerFunction = (req, res) => {
 
 	console.log(response);
 	if (response) {
-		return ContentService.createTextOutput(JSON.stringify(response));
+		return res.json(response);
 	} else {
 		return res.json({ error: "Invalid route" });
 	}

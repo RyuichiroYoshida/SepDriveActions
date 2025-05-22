@@ -1,5 +1,5 @@
-const https = require("https");
 const express = require("express");
+const fetch = require("node-fetch");
 
 const routes = {
 	releases: "GitHubから最新10件のリリース情報を取得します。",
@@ -12,96 +12,60 @@ app.get("/", (req, res) => {
 	res.send(routes);
 });
 
-app.get("/asset", (req, res) => {
+app.get("/asset", async (req, res) => {
 	try {
 		let owner = "RyuichiroYoshida";
 		let repo = "SepDriveActions";
 		let asset_id = req.query.id || null;
 		console.log(asset_id);
 
-		const opt = {
-			protocol: "https:",
-			hostname: "api.github.com",
-			path: `/repos/${owner}/${repo}/releases/assets/${asset_id}`,
-			method: "GET",
+		const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/assets/${asset_id}`, {
 			headers: {
+				"User-Agent": "node.js",
 				Accept: "application/octet-stream",
 				Authorization: "token " + process.env.GITHUB_TOKEN,
 			},
-			followRedirects: false,
+			redirect: "manual",
 			muteHttpExceptions: true,
-		};
-		const res = new Promise((resolve, reject) => {
-			const req = https.get(opt, (res) => {
-				res.on("data", (chunk) => {
-					// 受信したデータを処理する
-					console.log(`Received chunk: ${chunk}`);
-				});
-				res.on("end", () => {
-					// リクエストが完了したときの処理
-					console.log("Request completed.");
-				});
-				req.end();
-				req.on("error", (error) => {
-					reject(error);
-					console.error("Error:", error);
-				});
-			});
-			res.resolve((response) => {
-				return res;
-			});
 		});
+
+        if (response.status === 302) {
+            const location = response.headers.get("location");
+            return res.json({ url: location });
+        } else if (response.status === 200) {
+            // ファイルバイナリが返ってきた場合
+            res.setHeader("Content-Type", response.headers.get("content-type") || "application/octet-stream");
+            res.setHeader("Content-Disposition", response.headers.get("content-disposition") || "attachment");
+            response.body.pipe(res);
+        } else {
+            const text = await response.text();
+            throw new Error("Failed to fetch asset: " + response.statusText + " " + text);
+        }
 	} catch (error) {
-		reject(error);
-		console.error("Error fetching S3 asset URL:", error);
-		return { error: "Failed to fetch S3 asset URL" };
+		console.error("Error fetching asset:", error);
+		res.send({ error: "Failed to fetch asset" });
 	}
 });
 
-app.get("/releases", async(req, res) => {
+app.get("/releases", async (req, res) => {
 	try {
 		let owner = "RyuichiroYoshida";
 		let repo = "SepDriveActions";
 
-		const opt = {
-			protocol: "https:",
-			hostname: "api.github.com",
-			path: `/repos/${owner}/${repo}/releases`,
-			method: "GET",
+		const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases`, {
 			headers: {
+				"User-Agent": "node.js",
 				Accept: "application/vnd.github.v3+json",
 				Authorization: "token " + process.env.GITHUB_TOKEN,
 			},
 			followRedirects: false,
 			muteHttpExceptions: true,
-		};
-
-		const response = new Promise((resolve, reject) => {
-			const req = https.get(opt, (res) => {
-				res.on("data", (chunk) => {
-					// 受信したデータを処理する
-					console.log(`Received chunk: ${chunk}`);
-				});
-				res.on("end", () => {
-					// リクエストが完了したときの処理
-					console.log("Request completed.");
-				});
-				req.end();
-				req.on("error", (error) => {
-					reject(error);
-					console.error("Error:", error);
-				});
-				res.resolve((r) => {
-					return r;
-				});
-			});
 		});
-
-		let releases = response;
 
 		if (response.getResponseCode() !== 200) {
 			throw new Error("Failed to fetch releases: " + response);
 		}
+		let releases = await response.json();
 
 		// リリース情報をフィルタリングして、公開されているものだけを取得
 		releases.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
@@ -111,11 +75,11 @@ app.get("/releases", async(req, res) => {
 
 		let releasesResult = releases.map((release) => ({
 			// 各リリースごとに必要な情報だけを抽出して新しいオブジェクトを作成します
-			id: release.id, // リリースID
-			name: release.name, // リリース名
-			tag_name: release.tag_name, // タグ名
-			published_at: release.published_at, // 公開日時
-			assets: release.assets.map((asset) => ({
+			id: releases.id, // リリースID
+			name: releases.name, // リリース名
+			tag_name: releases.tag_name, // タグ名
+			published_at: releases.published_at, // 公開日時
+			assets: releases.assets.map((asset) => ({
 				// 各リリースのアセット情報も同様に必要な情報だけ抽出します
 				id: asset.id, // アセットID
 				name: asset.name, // アセット名
@@ -127,10 +91,10 @@ app.get("/releases", async(req, res) => {
 		releasesResult.forEach((release) => {
 			console.log(release);
 		});
-		return releasesResult;
+		res.send(releasesResult);
 	} catch (error) {
 		console.error("Error fetching releases:", error);
-		return { error: "Failed to fetch releases" };
+		res.send({ error: "Failed to fetch releases" });
 	}
 });
 

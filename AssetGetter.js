@@ -1,108 +1,73 @@
+const https = require("https");
+const express = require("express");
+
 const routes = {
-	"releases": "GitHubから最新10件のリリース情報を取得します。",
-	"asset": "GitHubから特定アセットのS3ダイレクトURLを取得します。",
-	"default": "GitHubから最新10件のリリース情報を取得します。",
+	releases: "GitHubから最新10件のリリース情報を取得します。",
+	asset: "GitHubから特定アセットのS3ダイレクトURLを取得します。",
+	default: "GitHubから最新10件のリリース情報を取得します。",
 };
 
-/**
- * GETリクエストを処理し、GitHubリリース情報をJSON形式で返します。
- *
- * @param {express.Request} req リクエストオブジェクト
- * @param {express.Response} res レスポンスオブジェクト
- * @returns {ContentService.TextOutput} GitHubリリース情報のJSONレスポンス。
- */
-exports.importerFunction = (req, res) => {
-    let route = req.query.route ?? "default";
-    let response = null;
-	const userAgent = req.headers['user-agent'];
+const app = express();
+app.get("/", (req, res) => {
+	res.send(routes);
+});
 
-    switch (route) {
-		case "releases":
-			response = GetReleases.handle();
-			if (response.error) {
-				response = { error: response.error };
-				break;
-			}
-			console.log(response);
-			break;
-		case "asset":
-			let owner = "RyuichiroYoshida";
-			let repo = "SepDriveActions";
-			let id = req.query.id || null;
-			console.log(id);
-			if (!id) {
-				response = { error: "id parameter is required" };
-				break;
-			}
+app.get("/asset", (req, res) => {
+	try {
+		let owner = "RyuichiroYoshida";
+		let repo = "SepDriveActions";
+		let asset_id = req.query.id || null;
+		console.log(asset_id);
 
-			response = GetS3AssetUrl.handle(owner, repo, id);
-			if (response.error) {
-				response = { error: response.error };
-				break;
-			}
-			console.log(response);
-			break;
-		default:
-			response = routes;
-			break;
-	}
-
-	console.log(response);
-	if (response) {
-		return res.json(response);
-	} else {
-		return res.json({ error: "Invalid route" });
-	}
-}
-
-const GetS3AssetUrl = (() => {
-	/**
-	 * 指定したGitHubリリースアセットのS3ダイレクトURLを取得します。
-	 *
-	 * @param {string} owner - GitHubリポジトリのオーナー名。
-	 * @param {string} repo - GitHubリポジトリ名。
-	 * @param {string|number} asset_id - リリースアセットのID。
-	 * @returns {string} S3アセットへのリダイレクトURL。
-	 */
-	function handle(owner, repo, asset_id) {
-		let url = `https://api.github.com/repos/${owner}/${repo}/releases/assets/${asset_id}`;
-
-		const response = UrlFetchApp.fetch(url, {
-			method: "get",
+		const opt = {
+			protocol: "https:",
+			hostname: "api.github.com",
+			path: `/repos/${owner}/${repo}/releases/assets/${asset_id}`,
+			method: "GET",
 			headers: {
 				Accept: "application/octet-stream",
 				Authorization: "token " + process.env.GITHUB_TOKEN,
 			},
 			followRedirects: false,
 			muteHttpExceptions: true,
+		};
+		const res = new Promise((resolve, reject) => {
+			const req = https.get(opt, (res) => {
+				res.on("data", (chunk) => {
+					// 受信したデータを処理する
+					console.log(`Received chunk: ${chunk}`);
+				});
+				res.on("end", () => {
+					// リクエストが完了したときの処理
+					console.log("Request completed.");
+				});
+				req.end();
+				req.on("error", (error) => {
+					reject(error);
+					console.error("Error:", error);
+				});
+			});
+			res.resolve((response) => {
+				return res;
+			});
 		});
-
-		const redirectUrl = response.getHeaders()["Location"];
-		return redirectUrl;
+	} catch (error) {
+		reject(error);
+		console.error("Error fetching S3 asset URL:", error);
+		return { error: "Failed to fetch S3 asset URL" };
 	}
-	return { handle };
-})();
+});
 
-const GetReleases = (() => {
-	/**
-	 * GitHubリポジトリの最新リリース情報を取得します。
-	 *
-	 * @function
-	 * @returns {Array<Object>} フィルタ済みかつ公開日の降順でソートされた最新10件までのリリース情報の配列。
-	 * 各リリースオブジェクトには以下のプロパティが含まれます:
-	 *   - {number} id リリースID
-	 *   - {string} name リリース名
-	 *   - {string} tag_name タグ名
-	 *   - {string} published_at 公開日時（ISO8601形式）
-	 *   - {Array<Object>} assets アセット情報の配列（id, name, download_urlを含む）
-	 * @throws {Error} リリース情報の取得に失敗した場合にエラーをスローします。
-	 */
-	function handle() {
+app.get("/releases", async(req, res) => {
+	try {
 		let owner = "RyuichiroYoshida";
 		let repo = "SepDriveActions";
-		let url = "https://api.github.com/repos/" + owner + "/" + repo + "/releases";
-		let options = {
-			method: "get",
+
+		const opt = {
+			protocol: "https:",
+			hostname: "api.github.com",
+			path: `/repos/${owner}/${repo}/releases`,
+			method: "GET",
 			headers: {
 				Accept: "application/vnd.github.v3+json",
 				Authorization: "token " + process.env.GITHUB_TOKEN,
@@ -110,10 +75,32 @@ const GetReleases = (() => {
 			followRedirects: false,
 			muteHttpExceptions: true,
 		};
-		let response = UrlFetchApp.fetch(url, options);
-		let releases = JSON.parse(response.getContentText());
+
+		const response = new Promise((resolve, reject) => {
+			const req = https.get(opt, (res) => {
+				res.on("data", (chunk) => {
+					// 受信したデータを処理する
+					console.log(`Received chunk: ${chunk}`);
+				});
+				res.on("end", () => {
+					// リクエストが完了したときの処理
+					console.log("Request completed.");
+				});
+				req.end();
+				req.on("error", (error) => {
+					reject(error);
+					console.error("Error:", error);
+				});
+				res.resolve((r) => {
+					return r;
+				});
+			});
+		});
+
+		let releases = response;
+
 		if (response.getResponseCode() !== 200) {
-			throw new Error("Failed to fetch releases: " + response.getContentText());
+			throw new Error("Failed to fetch releases: " + response);
 		}
 
 		// リリース情報をフィルタリングして、公開されているものだけを取得
@@ -141,6 +128,10 @@ const GetReleases = (() => {
 			console.log(release);
 		});
 		return releasesResult;
+	} catch (error) {
+		console.error("Error fetching releases:", error);
+		return { error: "Failed to fetch releases" };
 	}
-	return { handle };
-})();
+});
+
+exports.importFunction = app;

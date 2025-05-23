@@ -17,7 +17,6 @@ app.get("/asset", async (req, res) => {
 		let owner = "RyuichiroYoshida";
 		let repo = "SepDriveActions";
 		let asset_id = req.query.id || null;
-		console.log(asset_id);
 
 		const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/assets/${asset_id}`, {
 			headers: {
@@ -29,9 +28,10 @@ app.get("/asset", async (req, res) => {
 			muteHttpExceptions: true,
 		});
 
+		console.log("response.status", response.status);
         if (response.status === 302) {
             const location = response.headers.get("location");
-            return res.json({ url: location });
+            return res.redirect(location);
         } else if (response.status === 200) {
             // ファイルバイナリが返ってきた場合
             res.setHeader("Content-Type", response.headers.get("content-type") || "application/octet-stream");

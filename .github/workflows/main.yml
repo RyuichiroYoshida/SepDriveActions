@@ -19,7 +19,7 @@ jobs:
             run: |
               Write-Host "DRIVE_PATH from env: $env:DRIVE_PATH" # デバッグ用
               if ($env:DRIVE_PATH) {
-                Compress-Archive -Force -Path "$env:DRIVE_PATH\Unity" -DestinationPath "$env:DRIVE_PATH\Unity.zip"
+                Compress-Archive -Force -Path "$env:DRIVE_PATH" -DestinationPath "$env:DRIVE_PATH"
               } else {
                 Write-Error "DRIVE_PATH environment variable is not set."
               }

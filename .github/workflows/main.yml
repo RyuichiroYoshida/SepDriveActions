@@ -16,6 +16,8 @@ jobs:
             shell: powershell
             run: |
               Write-Error "Intentional failure"
+            continue-on-error: false
+
           - name: Checkout code
             uses: actions/checkout@v4
           - name: Create Zip

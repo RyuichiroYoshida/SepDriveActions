@@ -43,9 +43,16 @@ jobs:
             if: failure()
             shell: powershell
             run: |
+              $webhookUrl = "${{ secrets.DISCORD_WEBHOOK_URL }}"
               $url = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              $message = "ZIP作成かGitHubReleasesへのアップロードかそれ以外の何かに失敗しました 要確認`n$url"
+              $message = $message -replace "`r?`n", "\n"
+
               $body = @{
-                content = "ZIP作成かGitHubReleasesへのアップロードかそれ以外の何かに失敗しました 要確認`n$url"
+                content = $message
               } | ConvertTo-Json -Compress
-              $body = $body -replace '`n','\n'
-              Invoke-WebRequest -Headers @{"Content-Type"="application/json"} -Method Post -Body $body ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+              Invoke-WebRequest -Uri $webhookUrl `
+                -Method Post `
+                -Headers @{ "Content-Type" = "application/json" } `
+                -Body $body

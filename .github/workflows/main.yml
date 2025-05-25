@@ -12,11 +12,6 @@ jobs:
         env:
           DRIVE_PATH: I:\マイドライブ\September
         steps:
-          - name: Intentionally fail on Windows
-            shell: powershell
-            run: exit 1
-            continue-on-error: false
-
           - name: Checkout code
             uses: actions/checkout@v4
           - name: Create Zip
@@ -40,11 +35,11 @@ jobs:
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          - name: Discord Failure Post
-            if: failure()
-            env:
-              DISCORD_MESSAGE: "ZIP作成かGitHubReleasesへのアップロードかそれ以外の何かに失敗しました 要確認 \\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}>"
-            run: |
-              curl -X POST ${{ secrets.DISCORD_WEBHOOK_URL }}
-              -H "Content-Type: application/json"
-              -d "{\"content\":\"${{ env.DISCORD_MESSAGE }}\"}"
+          # - name: Discord Failure Post
+          #   if: failure()
+          #   env:
+          #     DISCORD_MESSAGE: "ZIP作成かGitHubReleasesへのアップロードかそれ以外の何かに失敗しました 要確認 \\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}>"
+          #   run: |
+          #     curl -X POST ${{ secrets.DISCORD_WEBHOOK_URL }}
+          #     -H "Content-Type: application/json"
+          #     -d "{\"content\":\"${{ env.DISCORD_MESSAGE }}\"}"

@@ -45,7 +45,7 @@ jobs:
             run: |
               $webhookUrl = "${{ secrets.DISCORD_WEBHOOK_URL }}"
               $url = "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}>"
-              $message = `"ZIP作成かGitHubReleasesへのアップロードかそれ以外の何かに失敗しました 要確認\n$url`"
+              $message = `"@ZIP作成かGitHubReleasesへのアップロードかそれ以外の何かに失敗しました 要確認\n$url@`"
               $body = "{""content"":""$message""}"
               Invoke-WebRequest -Uri $webhookUrl `
                 -Method Post `

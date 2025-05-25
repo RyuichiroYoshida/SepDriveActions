@@ -12,6 +12,10 @@ jobs:
         env:
           DRIVE_PATH: I:\マイドライブ\September
         steps:
+          - name: Intentionally fail on Windows
+            shell: powershell
+            run: |
+              Write-Error "Intentional failure"
           - name: Checkout code
             uses: actions/checkout@v4
           - name: Create Zip

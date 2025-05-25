@@ -41,5 +41,9 @@ jobs:
 
           - name: Discord Failure Post
             if: failure()
-            run:
-              Invoke-WebRequest -Headers @{"Content-Type"="application/json"} -Method Post -Body "{`"content`":`"${{ secrets.DISCORD_MESSAGE }} \n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}>`"}" ${{ secrets.DISCORD_WEBHOOK_URL }}
+            shell: powershell
+            run: |
+              $body = @{
+                content = "${{ secrets.DISCORD_MESSAGE }} `n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}>"
+              } | ConvertTo-Json
+              Invoke-WebRequest -Headers @{"Content-Type"="application/json"} -Method Post -Body $body ${{ secrets.DISCORD_WEBHOOK_URL }}

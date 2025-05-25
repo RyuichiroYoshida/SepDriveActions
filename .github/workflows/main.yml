@@ -2,7 +2,7 @@ name: Upload to GitHub Releases
 
 on:
   schedule:
-    - cron: '0 0 * * *' # æ¯æ—¥åˆå‰0æ™‚ã«å®Ÿè¡Œ
+    - cron: '0 0 * * *' # –ˆ“úŒß‘O0‚ÉÀs
   workflow_dispatch: {}
 permissions:
     contents: write
@@ -10,7 +10,7 @@ jobs:
     upload-release:
         runs-on: [self-hosted, Windows]
         env:
-          DRIVE_PATH: I:\ãƒã‚¤ãƒ‰ãƒ©ã‚¤ãƒ–\September
+          DRIVE_PATH: I:\ƒ}ƒCƒhƒ‰ƒCƒu\September
         steps:
           - name: Intentionally fail on Windows
             shell: powershell
@@ -22,20 +22,20 @@ jobs:
           - name: Create Zip
             shell: powershell
             run: |
-              Write-Host "DRIVE_PATH from env: $env:DRIVE_PATH" # ãƒ‡ãƒãƒƒã‚°ç”¨
+              Write-Host "DRIVE_PATH from env: $env:DRIVE_PATH" # ƒfƒoƒbƒO—p
               if ($env:DRIVE_PATH) {
                 Compress-Archive -Force -Path "$env:DRIVE_PATH\Unity\*" -DestinationPath "$env:DRIVE_PATH\Unity.zip"
               } else {
                 Write-Error "DRIVE_PATH environment variable is not set."
               }
 
-          # GitHub Releasesã¸ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰
+          # GitHub Releases‚ÖƒAƒbƒvƒ[ƒh
           - name: Upload Releases
             if: failure() == false
             shell: powershell
             run: |
               $TIMESTAMP = Get-Date -Format "yyyyMMdd_HHmmss"
-              Write-Host "TIMESTAMP from env: $TIMESTAMP" # ãƒ‡ãƒãƒƒã‚°ç”¨
+              Write-Host "TIMESTAMP from env: $TIMESTAMP" # ƒfƒoƒbƒO—p
               gh release create $TIMESTAMP "$env:DRIVE_PATH\Unity.zip" --title "Release Unity Package" --notes "This is a release created from a self-hosted runner." --target main
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -45,7 +45,7 @@ jobs:
             run: |
               $webhookUrl = "${{ secrets.DISCORD_WEBHOOK_URL }}"
               $url = "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}>"
-              $message = @"ZIPä½œæˆã‹GitHubReleasesã¸ã®ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ã‹ãã‚Œä»¥å¤–ã®ä½•ã‹ã«å¤±æ•—ã—ã¾ã—ãŸ è¦ç¢ºèª \n $url"@
+              $message = @"ZIPì¬‚©GitHubReleases‚Ö‚ÌƒAƒbƒvƒ[ƒh‚©‚»‚êˆÈŠO‚Ì‰½‚©‚É¸”s‚µ‚Ü‚µ‚½ —vŠm”F \n $url"@
               $body = "{""content"":""$message""}"
               Invoke-WebRequest -Uri $webhookUrl `
                 -Method Post `

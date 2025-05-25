@@ -47,4 +47,5 @@ jobs:
               $body = @{
                 content = "ZIP作成かGitHubReleasesへのアップロードかそれ以外の何かに失敗しました 要確認`n$url"
               } | ConvertTo-Json -Compress
+              $body = $body -replace '`n','\n'
               Invoke-WebRequest -Headers @{"Content-Type"="application/json"} -Method Post -Body $body ${{ secrets.DISCORD_WEBHOOK_URL }}

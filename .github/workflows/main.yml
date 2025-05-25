@@ -45,5 +45,5 @@ jobs:
             run: |
               $body = @{
                 content = "${{ secrets.DISCORD_MESSAGE }} `n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}>"
-              } | ConvertTo-Json
+              } | ConvertTo-Json -Compress
               Invoke-WebRequest -Headers @{"Content-Type"="application/json"} -Method Post -Body $body ${{ secrets.DISCORD_WEBHOOK_URL }}

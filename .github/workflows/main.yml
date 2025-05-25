@@ -42,12 +42,9 @@ jobs:
 
           - name: Discord Failure Post
             if: failure()
-            run: |
-              $webhookUrl = "${{ secrets.DISCORD_WEBHOOK_URL }}"
-              $url = "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}>"
-              $message = @"ZIP作成かGitHubReleasesへのアップロードかそれ以外の何かに失敗しました 要確認 \n $url"@
-              $body = "{""content"":""$message""}"
-              Invoke-WebRequest -Uri $webhookUrl `
-                -Method Post `
-                -Headers @{ "Content-Type" = "application/json" } `
-                -Body $body
+            env:
+              DISCORD_MESSAGE: "ZIP作成かGitHubReleasesへのアップロードかそれ以外の何かに失敗しました 要確認 \\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}>"
+            run: >
+              curl -X POST ${{ secrets.DISCORD_WEBHOOK_URL }}
+              -H "Content-Type: application/json"
+              -d "{\"content\":\"${{ env.DISCORD_MESSAGE }}\"}"

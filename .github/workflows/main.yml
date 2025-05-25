@@ -34,3 +34,8 @@ jobs:
               gh release create $TIMESTAMP "$env:DRIVE_PATH\Unity.zip" --title "Release Unity Package" --notes "This is a release created from a self-hosted runner." --target main
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          - name: Discord Failure Post
+            if: failure()
+            run:
+              Invoke-WebRequest -Headers @{"Content-Type"="application/json"} -Method Post -Body "{`"content`":`"${{ secrets.DISCORD_MESSAGE }} \n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}>`"}" ${{ secrets.DISCORD_WEBHOOK_URL }}

@@ -7,8 +7,8 @@ set UNITY_EDITOR_PATH=c:\Program Files\Unity\Hub\Editor\
 set PROJECT_PATH=C:\Users\vantan\Desktop\September
 set EXPORT_PATH="I:\マイドライブ\September\Builds"
 set LOG_FILE="C:\Users\vantan\Desktop\SepRunnerForCI\logs"
-set GIT_URL="https://github.com/RyuichiroYoshida/September.git
-"
+set GIT_URL="https://github.com/RyuichiroYoshida/September.git"
+
 @REM 出力フォルダを処理のたびに削除する
 if exist "%PROJECT_PATH%\Build" (
 	rmdir /s /q "%PROJECT_PATH%\Build"

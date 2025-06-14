@@ -3,7 +3,7 @@ chcp 65001 > nul
 
 @REM 環境変数の定義
 set UNITY_VERSION=6000.0.41f1
-set UNITY_EDITOR_PATH=c:\Program Files\Unity\Hub\Editor\
+set UNITY_EDITOR_PATH=C:\Program Files\Unity\Hub\Editor\
 set PROJECT_PATH=C:\Users\vantan\Desktop\September
 set EXPORT_PATH="I:\マイドライブ\September\Builds"
 set LOG_FILE="C:\Users\vantan\Desktop\SepRunnerForCI\logs"

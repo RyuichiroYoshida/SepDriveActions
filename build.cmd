@@ -6,7 +6,7 @@ set UNITY_VERSION=6000.0.41f1
 set UNITY_EDITOR_PATH=C:\Program Files\Unity\Hub\Editor\
 set PROJECT_PATH=C:\Users\vantan\Desktop\September
 set EXPORT_PATH="I:\マイドライブ\September\Builds"
-set LOG_FILE="C:\Users\vantan\Desktop\SepRunnerForCI\logs"
+set LOG_FILE=%PROJECT_PATH%\logs\sep.log
 set GIT_URL="https://github.com/RyuichiroYoshida/September.git"
 
 @REM 出力フォルダを処理のたびに削除する

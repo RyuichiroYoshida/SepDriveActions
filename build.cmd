@@ -22,7 +22,7 @@ if not %errorlevel% == 0 (
 )
 
 @REM Unityビルドコマンドを実行する
-"%UNITY_EDITOR_PATH%%UNITY_VERSION%\Editor\Unity.exe" -batchmode -quit -projectPath "%PROJECT_PATH%" -executeMethod BuildCommand.Build -logfile %LOG_FILE% -platform Windows -devmode true -outputPath "%PROJECT_PATH%\Build"
+"%UNITY_EDITOR_PATH%%UNITY_VERSION%\Editor\Unity.exe" -batchmode -quit -projectPath "%PROJECT_PATH%" -executeMethod BuildCommand.Build -clean -logfile %LOG_FILE% -platform Windows -devmode true -outputPath "%PROJECT_PATH%\Build"
 
 @REM ビルドエラー時にコンソールにログを表示する
 if not %errorlevel% == 0 (

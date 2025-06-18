@@ -1,6 +1,6 @@
 UNITY_VERSION=6000.0.41f1
 UNITY_EDITOR_PATH=/Applications/Unity/Hub/Editor/
-PROJECT_PATH=/Users/vantan/Desktop/September
+PROJECT_PATH=/Users/vantan/Documents/GitHub/September
 EXPORT_PATH=/Users/vantan/Library/CloudStorage/GoogleDrive-projectsepmtember2025@gmail.com/マイドライブ/September/Builds
 LOG_FILE=$PROJECT_PATH/log/Sep.log
 GIT_URL=https://github.com/RyuichiroYoshida/September.git

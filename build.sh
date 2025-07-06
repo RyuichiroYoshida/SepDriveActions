@@ -20,9 +20,9 @@ if [ $? -eq 1 ]; then
 fi
 
 # Unityビルドコマンドを実行する
-"$UNITY_EDITOR_PATH$UNITY_VERSION/Unity.app/Contents/MacOS/Unity" -batchmode -quit -projectPath "$PROJECT_PATH" -executeMethod "BuildCommand.Build" -clean -logfile "$LOG_FILE_PATH" -platform "Mac" -devmode true -outputPath "$PROJECT_PATH/Build"
+"$UNITY_EDITOR_PATH$UNITY_VERSION/Unity.app/Contents/MacOS/Unity" -batchmode -quit -projectPath "$PROJECT_PATH" -executeMethod "BuildCommand.Build" -clean -logfile "$LOG_FILE" -platform "Mac" -devmode true -outputPath "$PROJECT_PATH/Build"
 if [ $? -eq 1 ]; then
-    cat "./log/Sep.log"
+    cat "$LOG_FILE"
     exit 1
 fi
 
@@ -30,7 +30,7 @@ fi
 cd "$PROJECT_PATH"
 
 # ビルドファイルを圧縮
-zip -r MacBuild.zip Build/
+zip -r -o MacBuild.zip Build/
 
 if [ $? -eq 1 ]; then
     exit 1

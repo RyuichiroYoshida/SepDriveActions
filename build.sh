@@ -6,8 +6,8 @@ LOG_FILE=$PROJECT_PATH/log/Sep.log
 GIT_URL=https://github.com/RyuichiroYoshida/September.git
 
 # 出力フォルダを処理のたびに削除する
-if [ -e "$PROJECT_PATH/Build" ]; then
-    rm -rf "$PROJECT_PATH/Build"
+if [ -e "$PROJECT_PATH/Builds" ]; then
+    rm -rf "$PROJECT_PATH/Builds"
 fi
 
 # プロジェクト更新
@@ -20,7 +20,7 @@ if [ $? -eq 1 ]; then
 fi
 
 # Unityビルドコマンドを実行する
-"$UNITY_EDITOR_PATH$UNITY_VERSION/Unity.app/Contents/MacOS/Unity" -batchmode -quit -projectPath "$PROJECT_PATH" -executeMethod "BuildCommand.Build" -clean -logfile "$LOG_FILE" -platform "Mac" -devmode true -outputPath "$PROJECT_PATH/Build"
+"$UNITY_EDITOR_PATH$UNITY_VERSION/Unity.app/Contents/MacOS/Unity" -batchmode -quit -projectPath "$PROJECT_PATH" -executeMethod "BuildCommand.Build" -clean -logfile "$LOG_FILE" -platform "Mac" -devmode true -outputPath "$PROJECT_PATH/Builds"
 if [ $? -eq 1 ]; then
     cat "$LOG_FILE"
     exit 1
@@ -30,11 +30,11 @@ fi
 cd "$PROJECT_PATH"
 
 # ビルドファイルを圧縮
-zip -r -o MacBuild.zip Build/
+zip -r -o MacBuild.zip Builds/
 
 if [ $? -eq 1 ]; then
     exit 1
 fi
 
 # Google Driveへ移動
-mv "$PROJECT_PATH/MacBuild.zip" "$EXPORT_PATH"
+mv "$PROJECT_PATH/Builds/MacBuild.zip" "$EXPORT_PATH"

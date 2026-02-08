@@ -19,11 +19,49 @@ jobs:
             run: |
               Write-Host "DRIVE_PATH from env: $env:DRIVE_PATH" # デバッグ用
               if ($env:DRIVE_PATH) {
-                if (Test-Path "$env:DRIVE_PATH\Unity.zip") { Remove-Item "$env:DRIVE_PATH\Unity.zip" -Force }
+                Get-ChildItem "$env:DRIVE_PATH\Unity.zip*" -ErrorAction SilentlyContinue | Remove-Item -Force
                 tar -a -cf "$env:DRIVE_PATH\Unity.zip" -C "$env:DRIVE_PATH\Unity" .
               } else {
                 Write-Error "DRIVE_PATH environment variable is not set."
               }
+
+          # 2GBを超える場合は分割
+          - name: Split Zip if over 2GB
+            if: failure() == false
+            shell: powershell
+            run: |
+              $zipPath = "$env:DRIVE_PATH\Unity.zip"
+              $maxSize = 1900000000
+              $fileInfo = Get-Item $zipPath
+              if ($fileInfo.Length -le $maxSize) {
+                Write-Host "ZIP size ($($fileInfo.Length) bytes) is within GitHub 2GB limit"
+                return
+              }
+              Write-Host "ZIP size ($($fileInfo.Length) bytes) exceeds limit, splitting..."
+              $bufferSize = 4MB
+              $buffer = New-Object byte[] $bufferSize
+              $stream = [System.IO.File]::OpenRead($zipPath)
+              $partNum = 1
+              $partPath = "$zipPath.$($partNum.ToString('D3'))"
+              $outStream = [System.IO.File]::Create($partPath)
+              $bytesInPart = 0
+              while (($bytesRead = $stream.Read($buffer, 0, $bufferSize)) -gt 0) {
+                if (($bytesInPart + $bytesRead) -gt $maxSize -and $bytesInPart -gt 0) {
+                  $outStream.Close()
+                  Write-Host "Created part $partNum ($bytesInPart bytes)"
+                  $partNum++
+                  $partPath = "$zipPath.$($partNum.ToString('D3'))"
+                  $outStream = [System.IO.File]::Create($partPath)
+                  $bytesInPart = 0
+                }
+                $outStream.Write($buffer, 0, $bytesRead)
+                $bytesInPart += $bytesRead
+              }
+              $outStream.Close()
+              Write-Host "Created part $partNum ($bytesInPart bytes)"
+              $stream.Close()
+              Remove-Item $zipPath -Force
+              Write-Host "Split into $partNum parts"
 
           # GitHub Releasesへアップロード
           - name: Upload Releases
@@ -31,8 +69,28 @@ jobs:
             shell: powershell
             run: |
               $TIMESTAMP = Get-Date -Format "yyyyMMdd_HHmmss"
-              Write-Host "TIMESTAMP from env: $TIMESTAMP" # デバッグ用
-              gh release create $TIMESTAMP "$env:DRIVE_PATH\Unity.zip" --title "Release Unity Package" --notes "This is a release created from a self-hosted runner." --target main
+              Write-Host "Creating release: $TIMESTAMP"
+              gh release create $TIMESTAMP --title "Release Unity Package" --notes "This is a release created from a self-hosted runner." --target main
+              $files = Get-ChildItem "$env:DRIVE_PATH\Unity.zip*" | Sort-Object Name
+              foreach ($file in $files) {
+                Write-Host "Uploading: $($file.Name) ($($file.Length) bytes)"
+                gh release upload $TIMESTAMP $file.FullName
+              }
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # 最新10件を残して古いリリースを削除
+          - name: Cleanup Old Releases
+            if: failure() == false
+            shell: powershell
+            run: |
+              $tags = gh release list --limit 100 --json tagName --jq '.[10:] | .[].tagName'
+              foreach ($tag in $tags) {
+                if ($tag) {
+                  Write-Host "Deleting release: $tag"
+                  gh release delete $tag --yes --cleanup-tag
+                }
+              }
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
